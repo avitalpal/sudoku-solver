@@ -2,27 +2,41 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <cmath>
+#include <cmath> // needed for floor function to check if the grid entries are all integers
 using namespace std;
 
+#define error "Please ensure that you have pasted the grid correctly into the `yourGrid.txt` file."
+
+// SudokuGrid is a class that holds the Sudoku grid layout provided in yourGrid.txt, a constructor, and member functions for validation and solving
+// The main object in this program is userGrid
 class SudokuGrid
 {
     int grid[9][9];
 
 public:
     SudokuGrid();
+
+    // Check that the grid is valid and solvable by comparing each grid value to specific conditions
     bool isValid();
+    // Finds solution and calls other functions to evaluate the grid
     bool solveGrid();
+    // Displays the grid to the user
     void printGrid();
+    // Checks if a potential grid entry is already used in a grid row
     bool usedInRow(int row, int num);
+    // Checks if a potential grid entry is already used in a grid column
     bool usedInCol(int col, int num);
+    // Checks if a potential grid entry is already used in a 3x3 box
     bool usedInBox(int boxStartRow, int boxStartCol, int num);
+    // Checks if adding an entry will be fatal to the solution
     bool isSafe(int row, int col, int num);
+    // Locates grid cells containing 0's, indicating they are empty and must be solved
     bool findEmptyCell(int &row, int &col);
 };
 
 SudokuGrid::SudokuGrid()
 {
+    // Reading the file and inputting it into the grid object
     ifstream inputFile("yourGrid.txt");
     string line;
 
@@ -37,15 +51,12 @@ SudokuGrid::SudokuGrid()
     {
         istringstream iss(line);
         iss >> grid[lineCount][0] >> grid[lineCount][1] >> grid[lineCount][2] >> grid[lineCount][3] >> grid[lineCount][4] >> grid[lineCount][5] >> grid[lineCount][6] >> grid[lineCount][7] >> grid[lineCount][8];
-        // for (int i = 0; i < 9; i++)
-        // {
-        //     iss >> grid[i][0] >> grid[i][1] >> grid[i][2] >> grid[i][3] >> grid[i][4] >> grid[i][5] >> grid[i][6] >> grid[i][7] >> grid[i][8];
-        // }
         lineCount++;
     }
 
     inputFile.close();
 
+    // Outputting the grid for user display
     for (int i = 0; i < 9; i++)
     {
         for (int j = 0; j < 9; j++)
@@ -57,9 +68,6 @@ SudokuGrid::SudokuGrid()
     return;
 }
 
-/* Returns a boolean which indicates whether
-an assigned entry within the specified 3x3 box
-matches the given number. */
 bool SudokuGrid::usedInBox(int boxStartRow,
                            int boxStartCol, int num)
 {
@@ -72,9 +80,6 @@ bool SudokuGrid::usedInBox(int boxStartRow,
     return false;
 }
 
-/* Returns a boolean which indicates whether
-an assigned entry in the specified row matches
-the given number. */
 bool SudokuGrid::usedInRow(int row, int num)
 {
     for (int col = 0; col < 9; col++)
@@ -83,9 +88,6 @@ bool SudokuGrid::usedInRow(int row, int num)
     return false;
 }
 
-/* Returns a boolean which indicates whether
-an assigned entry in the specified column
-matches the given number. */
 bool SudokuGrid::usedInCol(int col, int num)
 {
     for (int row = 0; row < 9; row++)
@@ -98,8 +100,7 @@ bool SudokuGrid::solveGrid()
 {
     int row, col;
 
-    // If there is no unassigned location,
-    // we are done
+    // If there is no unassigned location, we're done
     if (!findEmptyCell(row, col))
         // success!
         return true;
@@ -108,7 +109,7 @@ bool SudokuGrid::solveGrid()
     for (int num = 1; num <= 9; num++)
     {
 
-        // Check if looks promising
+        // Check if it looks promising
         if (isSafe(row, col, num))
         {
 
@@ -119,12 +120,12 @@ bool SudokuGrid::solveGrid()
             if (solveGrid())
                 return true;
 
-            // Failure, unmake & try again
+            // Failure, undo & try again
             grid[row][col] = 0;
         }
     }
 
-    // This triggers backtracking
+    // This triggers backtracking in case of multiple solutions
     return false;
 }
 
@@ -141,15 +142,10 @@ void SudokuGrid::printGrid()
     }
 }
 
-/* Returns a boolean which indicates whether
-it will be legal to assign num to the given
-row, col location. */
 bool SudokuGrid::isSafe(int row,
                         int col, int num)
 {
-    /* Check if 'num' is not already placed in
-    current row, current column
-    and current 3x3 box */
+    // Check if the potential number is not already placed in a row/column/box
     return !usedInRow(row, num) && !usedInCol(col, num) && !usedInBox(row - row % 3, col - col % 3, num) && grid[row][col] == 0;
 }
 
@@ -162,6 +158,7 @@ bool SudokuGrid::findEmptyCell(int &row, int &col)
     return false;
 }
 
+// In case the user needs clarification on how sudoku works
 void printRules(int needsRules)
 {
     if (needsRules == 1)
@@ -201,11 +198,13 @@ bool SudokuGrid::isValid()
             if (floor(grid[i][j]) != grid[i][j])
             {
                 cout << "This grid is not valid. All values in the Sudoku must be positive integers." << endl;
+                cout << error << endl;
                 return false;
             }
             if (grid[i][j] < 0 || grid[i][j] > 9)
             {
                 cout << "This grid is not valid. All values in the Sudoku must be between 1-9, with the exception of 0's in this grid as placeholders." << endl;
+                cout << error << endl;
                 return false;
             }
         }
@@ -214,6 +213,7 @@ bool SudokuGrid::isValid()
     if (count < 17)
     {
         cout << "This grid is not valid. A minimum of 17 givens are required to solve a grid." << endl;
+        cout << error << endl;
         return false;
     }
 
@@ -223,7 +223,7 @@ bool SudokuGrid::isValid()
 int main()
 {
     int needsRules;
-    cout << "Before you cheat at Sudoku, would you like to review the rules of sudoku? (Enter 1 for yes, 2 for no)" << endl;
+    cout << "Before you cheat at Sudoku, would you like to review the rules of the game? (Enter 1 for yes, 2 for no)" << endl;
     cin >> needsRules;
     while (needsRules != 1 && needsRules != 2)
     {
@@ -232,7 +232,6 @@ int main()
     }
     printRules(needsRules);
 
-    cout << "Ensure that you have pasted the grid correctly into the yourGrid.txt file" << endl;
     SudokuGrid userGrid;
 
     if (userGrid.isValid() == false)
@@ -246,7 +245,8 @@ int main()
     }
     else
     {
-        cout << "No solution exists for this grid, sorry :(";
+        cout << "No solution exists for this grid, sorry :(" << endl;
+        cout << error << endl;
     }
 
     return 0;
