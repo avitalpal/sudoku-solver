@@ -226,11 +226,16 @@ int main()
     int needsRules;
     cout << "Before you cheat at Sudoku, would you like to review the rules of the game? (Enter 1 for yes, 2 for no)" << endl;
     cin >> needsRules;
+
+    // Input validation loop
     while (needsRules != 1 && needsRules != 2)
     {
         cout << "Please enter 1 or 2!" << endl;
+        cin.clear();                                         // Clear the fail state of cin
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Ignore incorrect input
         cin >> needsRules;
     }
+
     printRules(needsRules);
 
     SudokuGrid userGrid;
