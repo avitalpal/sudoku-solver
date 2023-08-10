@@ -7,6 +7,8 @@ Make sure you have a valid Sudoku grid in the yourGrid.txt file. The grid should
 Compile the program using a C++ compiler (e.g., g++).
 Run the compiled executable.
 
+![program output example](https://github.com/avitalpal/sudoku-solver/assets/111216669/518724ce-0c93-4f1e-8e90-1cfce4b8f857)
+
 ## Features
 Validates the input Sudoku grid for correctness and format before solving.
 Checks for the minimum number of givens required to ensure a unique solution.
